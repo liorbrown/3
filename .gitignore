@@ -1,0 +1,14 @@
+Baron.o
+Game.o
+General.o
+Governor.o
+Judge.o
+main.o
+Player.o
+Merchant.o
+PlayersList.o
+Spy.o
+.vscode/launch.json
+.vscode/settings.json
+.vscode/tasks.json
+main.out
