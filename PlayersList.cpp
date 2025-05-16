@@ -1,3 +1,5 @@
+// liorbrown@outlook.co.il
+
 #include "PlayersList.hpp"
 
 PlayersList* PlayersList::instance = nullptr;

@@ -1,6 +1,2 @@
-#include "Player.hpp"
+// liorbrown@outlook.co.il
 
-class Merchant : Player
-{
-
-};

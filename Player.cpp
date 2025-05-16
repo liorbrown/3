@@ -1,3 +1,5 @@
+// liorbrown@outlook.co.il
+
 #include "Player.hpp"
 
 void Player::playTurn()

@@ -1,3 +1,5 @@
+// liorbrown@outlook.co.il
+
 #include "Game.hpp"
 #include <iostream>
 
@@ -16,5 +18,5 @@ int main()
     if (winner)
         cout << "The winner is 🥁🥁🥁🥁🥁🥁: " << winner << endl;
     
-    cout << "Bye Bye 🤗";
+    cout << "Bye Bye 🤗" << endl;
 }
