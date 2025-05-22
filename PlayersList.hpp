@@ -2,13 +2,8 @@
 #pragma once
 
 #include <map>
-#include "General.hpp"
-#include "Governor.hpp"
-#include "Judge.hpp"
-#include "Merchant.hpp"
-#include "Spy.hpp"
-#include "Baron.hpp"
 #include <string>
+#include "Player.hpp"
 
 using namespace std;
 
@@ -17,79 +12,77 @@ class PlayersList
     private:
         static PlayersList* instance;
 
-        PlayersList();
-        map<string, Player> list;
+        map<string, Player*> list;
+
+        ~PlayersList(){this->clear();}
+        
+        Player* createPlayer(string name);
+        void clear();
 
     public:
         static PlayersList& getInstance();
+        static void free();
 
-        Player* getNext() const;
+        const char* getWinner() const {return this->list.begin()->first.c_str();}
+        void init();
         Player* getPlayer(const string& name) const;
         string* players() const;
-        void turn() const;
-        void free();
+        void turn() const {}
+        void remove(Player* player);
 
         class cycleIterator
         {
             private:
-		        Player* current;
+		        map<string, Player*>::iterator current;
 
 	        public:
 
-                cycleIterator(Player* ptr = nullptr):current(ptr) {}
+                cycleIterator(map<string, Player*>::iterator ptr):current(ptr) {}
 
-                Player& operator*() const {return *current;}
-
-                Player* operator->() const {return current;}
+                Player& operator*() const {return *current->second;}
+                Player* operator->() const {return current->second;}
 
                 // ++i;
                 cycleIterator& operator++();
 
                 // i++;
                 // Usually iterators are passed by value and not by const& as they are small.
-                const cycleIterator operator++(int) {
-                    cycleIterator tmp = *this;
-                    ++*this;
-                    return tmp;
-                }
+                const cycleIterator operator++(int);
 
                 bool operator==(const cycleIterator& rhs) const {return current == rhs.current;}
 
                 bool operator!=(const cycleIterator& rhs) const {return !(*this == rhs);}
         };
 
-        class blockIterator
+        class peersIterator
         {
             private:
-		        Player* current;
+                string currentPlayer;
+		        map<string, Player*>::iterator current;
 
 	        public:
 
-                blockIterator(Player* ptr = nullptr):current(ptr) {}
+                peersIterator(map<string, Player*>::iterator ptr, const string currentPlayer):
+                    current(ptr), currentPlayer(currentPlayer) {}
 
-                Player& operator*() const {return *current;}
-
-                Player* operator->() const {return current;}
+                Player& operator*() const {return *current->second;}
+                Player* operator->() const {return current->second;}
 
                 // ++i;
-                blockIterator& operator++();
+                peersIterator& operator++();
 
                 // i++;
                 // Usually iterators are passed by value and not by const& as they are small.
-                const blockIterator operator++(int) {
-                    blockIterator tmp = *this;
-                    ++*this;
-                    return tmp;
-                }
+                const peersIterator operator++(int);
 
-                bool operator==(const blockIterator& rhs) const {return current == rhs.current;}
+                bool operator==(const peersIterator& rhs) const {return current == rhs.current;}
 
-                bool operator!=(const blockIterator& rhs) const {return !(*this == rhs);}
+                bool operator!=(const peersIterator& rhs) const {return !(*this == rhs);}
         };
 
-        cycleIterator begin() {return {&(*list.begin()).second};}
-        cycleIterator end() {return {};}
+    cycleIterator begin();
+    cycleIterator end() {return{{}};}
 
-        blockIterator bBegin() {return {&(*list.begin()).second};}
-        blockIterator bEnd() {return {};}
+    peersIterator pBegin(string currentPlayer);
+    peersIterator pEnd() {return {this->list.end(),{}};}        
 };

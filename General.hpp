@@ -3,7 +3,8 @@
 
 #include "Player.hpp"
 
-class General : Player
+class General : public Player
 {
-
+    public:
+        General(string name): Player(name){}
 };

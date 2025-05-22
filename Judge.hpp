@@ -3,7 +3,8 @@
 
 #include "Player.hpp"
 
-class Judge : Player
+class Judge : public Player
 {
-
+    public:
+        Judge(string name): Player(name){}
 };

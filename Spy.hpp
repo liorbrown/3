@@ -3,7 +3,8 @@
 
 #include "Player.hpp"
 
-class Spy : Player
+class Spy : public Player
 {
-
+    public:
+        Spy(string name): Player(name){}
 };

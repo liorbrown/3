@@ -13,7 +13,7 @@ valgrind: buildMain
 buildMain: main.o Baron.o Game.o General.o Governor.o Judge.o Merchant.o Player.o PlayersList.o Spy.o
 	$(CXX) $^ -o main.out
 
-main.o: main.cpp
+main.o: main.cpp Game.hpp
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 Baron.o: Baron.cpp Baron.hpp
@@ -34,10 +34,10 @@ Judge.o: Judge.cpp Judge.hpp
 Merchant.o: Merchant.cpp Merchant.hpp
 	$(CXX) $(CXXFLAGS) $< -o $@
 
-Player.o: Player.cpp Player.hpp
+Player.o: Player.cpp Player.hpp Game.hpp PlayersList.hpp
 	$(CXX) $(CXXFLAGS) $< -o $@
 
-PlayersList.o: PlayersList.cpp PlayersList.hpp
+PlayersList.o: PlayersList.cpp PlayersList.hpp Game.hpp Baron.hpp General.hpp Governor.hpp Judge.hpp Merchant.hpp Player.hpp Spy.hpp
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 Spy.o: Spy.cpp Spy.hpp

@@ -7,16 +7,20 @@ using namespace std;
 
 int main()
 {
-    cout << "🚀🚀🚀🚀🚀🚀🚀 Welcome to coup! 🚀🚀🚀🚀🚀🚀🚀" << endl;
+    Game::free();
+    PlayersList::free();
 
-    Game newGame;
+    cout << "🚀🚀🚀🚀🚀🚀 Welcome to coup! 🚀🚀🚀🚀🚀🚀" << endl;
 
-    newGame.start();
+    Game::getIstance().start();
 
-    char* winner = newGame.winner();
+    string winner = Game::getIstance().winner();
 
-    if (winner)
+    if (winner.empty())
         cout << "The winner is 🥁🥁🥁🥁🥁🥁: " << winner << endl;
     
     cout << "Bye Bye 🤗" << endl;
+
+    Game::free();
+    PlayersList::free();
 }

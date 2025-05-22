@@ -1,19 +1,31 @@
 // liorbrown@outlook.co.il
 #pragma once
 
-#include "PlayersList.hpp"
 #include <string>
 #include <map>
+#include <iostream>
+#include "PlayersList.hpp"
 
 using namespace std;
 
 class Game
 {
     private:
-        char* winnerName;
+        static Game* instance;
 
+        string turnName;
+        size_t turnNum; 
+        string winnerName;
+        Game(): turnNum(0){}
+        
     public:
-        Game(): winnerName(nullptr){}
+        static Game& getIstance();
+        static void free();
+        
         void start();
-        char* winner();
+        string winner() const {return this->winnerName;}
+        size_t getTurn() const {return this->turnNum;}
+
+        void turn() const {
+            cout << "\n😎-------------😎\n" << this->turnName << " turn:\n😎-------------😎" << endl;}
 };
