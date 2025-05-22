@@ -24,8 +24,8 @@ void PlayersList::free()
 
 void PlayersList::clear()
 {
-    for (pair<string, Player*> p : this->list)
-        delete p.second;
+    for (Player* p : this->list)
+        delete p;
     
     this->list.clear();
 }
@@ -66,21 +66,19 @@ void PlayersList::init()
     this->clear();
 
     string playerNum;
-    size_t nPlayers;
+    size_t nPlayers = 0;
 
-    do
+    while (!nPlayers)
     {
         cout << "Please enter number of players (2-6): ";
         cin >> nPlayers;
 
-        //nPlayers = stoul(playerNum);
-
         if (nPlayers < 2 || nPlayers > 6)
         {
-            cout << "Wrong input 🙄";
+            cout << "Wrong input 🙄" << endl;
             nPlayers = 0;
         }
-    } while (!nPlayers);
+    }
 
     for (size_t i = 1; i <= nPlayers; i++)
     {
@@ -91,7 +89,7 @@ void PlayersList::init()
             cout << "Enter player " << i << " name: ";
             cin >> playerName;
 
-            if (this->list.find(playerName)->second)
+            if (this->getPlayer(playerName))
             {
                 cout << "Name is already taken🫤" << endl;
                 playerName.clear();
@@ -100,7 +98,7 @@ void PlayersList::init()
 
         Player* newPlayer = createPlayer(playerName);
 
-        this->list.emplace(playerName, newPlayer);
+        this->list.emplace_back(newPlayer);
 
         cout << playerName << " is " << (typeid(*newPlayer).name() + 1) << endl;
     }
@@ -108,7 +106,11 @@ void PlayersList::init()
 
 Player* PlayersList::getPlayer(const string &name) const
 {
-    return this->list.find(name)->second;
+    for(Player* p: this->list)
+        if (p->getName() == name)
+            return p;
+    
+    return nullptr;
 }
 
 string* PlayersList::players() const
@@ -116,22 +118,23 @@ string* PlayersList::players() const
     string* pList = new string[this->list.size()];
     size_t i = 0;
 
-    for (auto p : this->list)
-        pList[i++] = p.first;
+    for (const Player* p : this->list)
+        pList[i++] = p->getName();
         
     return pList;
 }
 
 void PlayersList::remove(Player* player)
 {
-    this->list.erase(player->getName());
+    size_t nPlayers = this->list.size();
 
-    delete player;
-}
-
-PlayersList::cycleIterator PlayersList::begin() 
-{
-    return (this->list.begin());
+    for (size_t i = 0; i < nPlayers; i++)
+        if (this->list.at(i) == player)
+        {
+            this->list.erase(this->list.begin()+i);
+            delete player;
+            return;
+        }
 }
 
 PlayersList::peersIterator PlayersList::pBegin(string currentPlayer)
@@ -146,7 +149,7 @@ PlayersList::peersIterator PlayersList::pBegin(string currentPlayer)
 
 PlayersList::cycleIterator& PlayersList::cycleIterator::operator++()
 {
-    map<string, Player*>& myList = PlayersList::getInstance().list;
+    vector<Player*>& myList = PlayersList::getInstance().list;
     
     assert(myList.size());
     
@@ -158,7 +161,7 @@ PlayersList::cycleIterator& PlayersList::cycleIterator::operator++()
     {
         ++this->current;
 
-        if (this->current == myList.end())
+        if (!*this->current)
             this->current = myList.begin();
     }
 
@@ -174,11 +177,10 @@ const PlayersList::cycleIterator PlayersList::cycleIterator::operator++(int) {
 }
 
 PlayersList::peersIterator& PlayersList::peersIterator::operator++() {
-    map<string, Player*>* myList = &PlayersList::getInstance().list;
-
     auto next = ++current;
 
-    if (next != myList->end() && next->first == this->currentPlayer)
+    if (next != PlayersList::getInstance().list.end() && 
+        (*next)->getName() == this->currentPlayer)
         ++current;
 
     return *this;
@@ -191,4 +193,3 @@ const PlayersList::peersIterator PlayersList::peersIterator::operator++(int) {
     ++*this;
     return tmp;
 }
-

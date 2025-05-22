@@ -35,5 +35,5 @@ void Game::start()
 
     this->winnerName = PlayersList::getInstance().begin()->getName();
 
-    cout << "And the winner is 🥁🥁🥁🥁🥁🥁🥁🥁🥁:\n" << this->winner();
+    cout << "And the winner is 🥁🥁🥁🥁🥁🥁🥁🥁🥁:\n" << this->winner() << endl;
 }

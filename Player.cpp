@@ -8,6 +8,8 @@ using namespace std;
 
 void Player::playTurn()
 {
+    Game::getIstance().turn();
+
     size_t oppCode = 0;
 
     if (this->coins >= 10)
@@ -19,7 +21,6 @@ void Player::playTurn()
     {
         while(!oppCode)
         {
-            Game::getIstance().turn();
             cout << "You have: " << this->coins << " coins\nChoose your action:\n1) Gather\n2) Tax\n3) Bribe\n4) Arrest\n5) Sanction\n6) Coup" << endl; 
             cin >> oppCode;
 

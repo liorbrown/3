@@ -1,7 +1,7 @@
 // liorbrown@outlook.co.il
 #pragma once
 
-#include <map>
+#include <vector>
 #include <string>
 #include "Player.hpp"
 
@@ -12,7 +12,7 @@ class PlayersList
     private:
         static PlayersList* instance;
 
-        map<string, Player*> list;
+        vector<Player*> list;
 
         ~PlayersList(){this->clear();}
         
@@ -23,7 +23,6 @@ class PlayersList
         static PlayersList& getInstance();
         static void free();
 
-        const char* getWinner() const {return this->list.begin()->first.c_str();}
         void init();
         Player* getPlayer(const string& name) const;
         string* players() const;
@@ -33,14 +32,14 @@ class PlayersList
         class cycleIterator
         {
             private:
-		        map<string, Player*>::iterator current;
+		        vector<Player*>::iterator current;
 
 	        public:
 
-                cycleIterator(map<string, Player*>::iterator ptr):current(ptr) {}
+                cycleIterator(vector<Player*>::iterator ptr):current(ptr) {}
 
-                Player& operator*() const {return *current->second;}
-                Player* operator->() const {return current->second;}
+                Player& operator*() const {return **current;}
+                Player* operator->() const {return *current;}
 
                 // ++i;
                 cycleIterator& operator++();
@@ -58,15 +57,15 @@ class PlayersList
         {
             private:
                 string currentPlayer;
-		        map<string, Player*>::iterator current;
+		        vector<Player*>::iterator current;
 
 	        public:
 
-                peersIterator(map<string, Player*>::iterator ptr, const string currentPlayer):
+                peersIterator(vector<Player*>::iterator ptr, const string currentPlayer):
                     current(ptr), currentPlayer(currentPlayer) {}
 
-                Player& operator*() const {return *current->second;}
-                Player* operator->() const {return current->second;}
+                Player& operator*() const {return **current;}
+                Player* operator->() const {return *current;}
 
                 // ++i;
                 peersIterator& operator++();
@@ -80,7 +79,7 @@ class PlayersList
                 bool operator!=(const peersIterator& rhs) const {return !(*this == rhs);}
         };
 
-    cycleIterator begin();
+    cycleIterator begin(){return (this->list.begin());}
     cycleIterator end() {return{{}};}
 
     peersIterator pBegin(string currentPlayer);
