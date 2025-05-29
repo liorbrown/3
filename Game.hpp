@@ -16,7 +16,10 @@ class Game
         string turnName;
         size_t turnNum; 
         string winnerName;
+
         Game(): turnNum(0){}
+        Game(const Game&) = delete;
+        Game& operator=(const Game&) = delete;
         
     public:
         static Game& getIstance();
@@ -24,8 +27,8 @@ class Game
         
         void start();
         string winner() const {return this->winnerName;}
-        size_t getTurn() const {return this->turnNum;}
+        size_t getTurnNum() const {return this->turnNum;}
+        string getTurnName() const {return this->turnName;}
 
-        void turn() const {
-            cout << "\n😎-------------😎\n" << this->turnName << " turn:\n😎-------------😎" << endl;}
+        void turn() const {cout << this->turnName;}
 };

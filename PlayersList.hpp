@@ -3,17 +3,21 @@
 
 #include <vector>
 #include <string>
-#include "Player.hpp"
 
 using namespace std;
+
+class Player;
 
 class PlayersList
 {
     private:
         static PlayersList* instance;
 
-        vector<Player*> list;
+        vector<Player*> list;        
+        PlayersList():iterator({}){}
 
+        PlayersList(const PlayersList&) = delete;
+        PlayersList& operator=(const PlayersList&) = delete;
         ~PlayersList(){this->clear();}
         
         Player* createPlayer(string name);
@@ -23,11 +27,12 @@ class PlayersList
         static PlayersList& getInstance();
         static void free();
 
-        void init();
+        
         Player* getPlayer(const string& name) const;
         string* players() const;
         void turn() const {}
         void remove(Player* player);
+        Player& getWinner(){return *this->list.at(0);}
 
         class cycleIterator
         {
@@ -38,11 +43,13 @@ class PlayersList
 
                 cycleIterator(vector<Player*>::iterator ptr):current(ptr) {}
 
-                Player& operator*() const {return **current;}
+                
+
+                Player* operator*() const {return *current;}
                 Player* operator->() const {return *current;}
 
                 // ++i;
-                cycleIterator& operator++();
+                cycleIterator* operator++();
 
                 // i++;
                 // Usually iterators are passed by value and not by const& as they are small.
@@ -79,7 +86,10 @@ class PlayersList
                 bool operator!=(const peersIterator& rhs) const {return !(*this == rhs);}
         };
 
-    cycleIterator begin(){return (this->list.begin());}
+    cycleIterator iterator;
+    Player* current(){return *this->iterator;}
+    
+    cycleIterator* begin();
     cycleIterator end() {return{{}};}
 
     peersIterator pBegin(string currentPlayer);

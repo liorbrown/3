@@ -1,6 +1,7 @@
 // liorbrown@outlook.co.il
 
 #include "Game.hpp"
+#include "Player.hpp"
 
 Game* Game::instance = nullptr;
 
@@ -22,18 +23,21 @@ void Game::free()
 }
 
 void Game::start()
-{
-    PlayersList::getInstance().init();
-    
-    for (Player& p: PlayersList::getInstance())
+{   
+    for 
+    (
+        auto turnsIterator = PlayersList::getInstance().begin();
+        *turnsIterator != PlayersList::getInstance().end();
+        ++*turnsIterator
+    ) 
     {
         ++this->turnNum;
-        this->turnName = p.getName();
-
-        p.playTurn();
+        this->turnName = (*turnsIterator)->getName();
+        
+        (*turnsIterator)->playTurn();
     }
+    
+    this->winnerName = PlayersList::getInstance().getWinner().getName();
 
-    this->winnerName = PlayersList::getInstance().begin()->getName();
-
-    cout << "And the winner is 🥁🥁🥁🥁🥁🥁🥁🥁🥁:\n" << this->winner() << endl;
+    cout << "And the winner is 🥁🥁🥁🥁🥁🥁🥁🥁:\n" << this->winner() << endl;
 }

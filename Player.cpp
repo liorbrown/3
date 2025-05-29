@@ -1,15 +1,15 @@
 // liorbrown@outlook.co.il
 
 #include "Player.hpp"
-#include "Game.hpp"
-#include <iostream>
-
-using namespace std;
 
 void Player::playTurn()
 {
+    cout << "-------------" << endl;
     Game::getIstance().turn();
+    cout << " turn:\n-------------" << endl;
 
+    this->specialAction();
+    
     size_t oppCode = 0;
 
     if (this->coins >= 10)
@@ -54,7 +54,7 @@ void Player::playTurn()
             break;
     }
 
-    this->isSanctioned = false;
+    this->isSanctioned = this->blockArrest = false;
 }
 
 void Player::gather()
@@ -66,19 +66,33 @@ void Player::gather()
         return;
     }
 
-    ++this->coins;
+    ++*this;
 }
 
-void Player::tax()
+bool Player::tax()
 {
     if (this->isSanctioned)
     {
         cout << "You are sanctioned, can't use gather or tax😶" << endl;
         this->playTurn();
-        return;
+        return false;
     }
 
+    for 
+    (
+        auto peersIterator = PlayersList::getInstance().pBegin(this->name);
+        peersIterator != PlayersList::getInstance().pEnd();
+        ++peersIterator
+    )
+        if (peersIterator->blockTax())
+        {
+            cout << "You been blocked by " << peersIterator->name << endl;
+            return false;
+        }
+    
     this->coins += 2;
+
+    return true;
 }
 
 void Player::bribe()
@@ -90,6 +104,16 @@ void Player::bribe()
     else
     {
         this->coins -= 4;
+
+        for 
+        (
+            auto peersIterator = PlayersList::getInstance().pBegin(this->name);
+            peersIterator != PlayersList::getInstance().pEnd();
+            ++peersIterator
+        )
+            if (peersIterator->blockBribe())
+                return;
+
         this->isBribe = true;
     }
 
@@ -98,9 +122,17 @@ void Player::bribe()
 
 void Player::arrest()
 {
+    if (this->blockArrest)
+    {
+        cout << "You can't arrest because you blocked by spy 🕵🏻‍♂️" << endl;
+        this->playTurn();
+        return;
+    }
+
     Player* selectedPlayer = this->choosePlayer();
 
-    if (Game::getIstance().getTurn() - selectedPlayer->arrestedTurn == 1)
+    if (selectedPlayer->arrestedTurn &&
+        Game::getIstance().getTurnNum() - selectedPlayer->arrestedTurn == 1)
     {
         cout << selectedPlayer->name << " already arrested in previous turn 😶" << endl;
         this->playTurn();
@@ -114,10 +146,7 @@ void Player::arrest()
         return;
     }
 
-    --selectedPlayer->coins;
-    selectedPlayer->arrestedTurn = Game::getIstance().getTurn();
-
-    ++this->coins;
+    selectedPlayer->arrested();
 }
 
 void Player::sanction()
@@ -139,19 +168,40 @@ void Player::sanction()
     }
 
     this->coins -= 3;
-    selectedPlayer->isSanctioned = true;
+    selectedPlayer->sanctioned();
 }
 
 void Player::coup()
 {
     if (this->coins < 7)
     {
-        cout << "You need 7 coins for sanction";
+        cout << "You need 7 coins for sanction" << endl;
         this->playTurn();
         return;
     }
 
-    PlayersList::getInstance().remove(this->choosePlayer());
+    this->coins -= 7;
+
+    Player* selected = this->choosePlayer();
+
+    for 
+    (
+        auto peersIterator = PlayersList::getInstance().pBegin(this->name);
+        peersIterator != PlayersList::getInstance().pEnd();
+        ++peersIterator
+    )
+        if (peersIterator->blockCoup())
+            return;
+
+    PlayersList::getInstance().remove(selected);
+}
+
+void Player::arrested()
+{
+    --*this;
+    ++*PlayersList::getInstance().current();
+
+    this->arrestedTurn = Game::getIstance().getTurnNum();
 }
 
 Player* Player::choosePlayer()
@@ -172,11 +222,29 @@ Player* Player::choosePlayer()
             cout << peersIterator->name << endl;
         
         cin >> PlayerName;
-        selectedPlayer = PlayersList::getInstance().getPlayer(PlayerName);
 
-        if (!selectedPlayer)
-            cout << "Player not exist, please try again" << endl;
+        if (PlayerName == this->name)
+            cout << "Can't do opearation on your self 🫤";
+        else
+        {
+            selectedPlayer = PlayersList::getInstance().getPlayer(PlayerName);
+
+            if (!selectedPlayer)
+                cout << "Player not exist, please try again" << endl;
+        }
     }
 
     return selectedPlayer;
+}
+
+Player& Player::operator--()
+{
+    --this->coins;
+    return *this;
+}
+
+Player& Player::operator++()
+{
+    ++this->coins;
+    return *this;
 }

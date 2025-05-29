@@ -5,6 +5,10 @@
 
 class Spy : public Player
 {
+    private:
+        void specialAction();
+
     public:
         Spy(string name): Player(name){}
+        
 };

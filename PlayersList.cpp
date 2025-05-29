@@ -32,6 +32,8 @@ void PlayersList::clear()
 
 Player *PlayersList::createPlayer(string name)
 {
+    srand(time(NULL));
+    
     int roll = rand() % 6;
 
     switch (roll)
@@ -61,7 +63,51 @@ PlayersList &PlayersList::getInstance()
     return *instance;
 }
 
-void PlayersList::init()
+Player* PlayersList::getPlayer(const string &name) const
+{
+    for(Player* p: this->list)
+        if (p->getName() == name)
+            return p;
+    
+    return nullptr;
+}
+
+string* PlayersList::players() const
+{
+    string* pList = new string[this->list.size()];
+    size_t i = 0;
+
+    for (const Player* p : this->list)
+        pList[i++] = p->getName();
+        
+    return pList;
+}
+
+void PlayersList::remove(Player* player)
+{
+    size_t nPlayers = this->list.size();
+
+    for(auto p = this->list.begin(); p != this->list.end();++p)
+        if (*p == player)
+            this->list.erase(p);
+
+    // for (size_t i = 0; i < nPlayers; i++)
+    //     if (this->list.at(i) == player)
+    //     {
+    //         this->list.erase(this->list.begin()+i);
+    //         delete player;
+    //         break;
+    //     }
+    
+    for
+    (
+        this->iterator = this->list.begin();
+        *this->iterator != PlayersList::getInstance().current();
+        ++this->iterator
+    );
+}
+
+PlayersList::cycleIterator* PlayersList::begin()
 {
     this->clear();
 
@@ -102,39 +148,10 @@ void PlayersList::init()
 
         cout << playerName << " is " << (typeid(*newPlayer).name() + 1) << endl;
     }
-}
 
-Player* PlayersList::getPlayer(const string &name) const
-{
-    for(Player* p: this->list)
-        if (p->getName() == name)
-            return p;
-    
-    return nullptr;
-}
+    this->iterator = this->list.begin();
 
-string* PlayersList::players() const
-{
-    string* pList = new string[this->list.size()];
-    size_t i = 0;
-
-    for (const Player* p : this->list)
-        pList[i++] = p->getName();
-        
-    return pList;
-}
-
-void PlayersList::remove(Player* player)
-{
-    size_t nPlayers = this->list.size();
-
-    for (size_t i = 0; i < nPlayers; i++)
-        if (this->list.at(i) == player)
-        {
-            this->list.erase(this->list.begin()+i);
-            delete player;
-            return;
-        }
+    return (&this->iterator);
 }
 
 PlayersList::peersIterator PlayersList::pBegin(string currentPlayer)
@@ -147,7 +164,7 @@ PlayersList::peersIterator PlayersList::pBegin(string currentPlayer)
     return iterator;
 }
 
-PlayersList::cycleIterator& PlayersList::cycleIterator::operator++()
+PlayersList::cycleIterator* PlayersList::cycleIterator::operator++()
 {
     vector<Player*>& myList = PlayersList::getInstance().list;
     
@@ -156,16 +173,16 @@ PlayersList::cycleIterator& PlayersList::cycleIterator::operator++()
     if (myList.size() == 1)
         this->current = {};
     else if ((*this)->getIsBribe())
-        (*this)->getIsBribe() = false;
+        (*this)->Unbribe();
     else
     {
         ++this->current;
 
-        if (!*this->current)
+        if (this->current == myList.end())
             this->current = myList.begin();
     }
 
-    return (*this);
+    return (this);
 }
 
 // i++;
