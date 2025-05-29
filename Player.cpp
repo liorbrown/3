@@ -21,10 +21,10 @@ void Player::playTurn()
     {
         while(!oppCode)
         {
-            cout << "You have: " << this->coins << " coins\nChoose your action:\n1) Gather\n2) Tax\n3) Bribe\n4) Arrest\n5) Sanction\n6) Coup" << endl; 
+            cout << "You have: " << this->coins << " coins\nChoose your action:\n1) Gather\n2) Tax\n3) Bribe\n4) Arrest\n5) Sanction\n6) Coup\n7) skip" << endl; 
             cin >> oppCode;
 
-            if (oppCode < 1 || oppCode > 6 )
+            if (oppCode < 1 || oppCode > 7 )
             {
                 cout << "Wrong input 🙄";
                 oppCode = 0;
@@ -51,6 +51,8 @@ void Player::playTurn()
             break;
         case 6:
             this->coup();
+            break;
+        default:
             break;
     }
 

@@ -156,12 +156,19 @@ void PlayersList::remove(Player* player)
 
     for(auto p = this->list.begin(); p != this->list.end();++p)
         if (*p == player)
+        {
             this->list.erase(p);
+            break;
+        }
+    
+    delete player;
+
+    Player* current = PlayersList::getInstance().current();
     
     for
     (
         this->turnsIterator = this->list.begin();
-        *this->turnsIterator != PlayersList::getInstance().current();
+        *this->turnsIterator != current;
         ++this->turnsIterator
     );
 }
