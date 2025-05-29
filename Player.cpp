@@ -5,7 +5,7 @@
 void Player::playTurn()
 {
     cout << "-------------" << endl;
-    Game::getIstance().turn();
+    Game::getInstance().turn();
     cout << " turn:\n-------------" << endl;
 
     this->specialAction();
@@ -78,17 +78,9 @@ bool Player::tax()
         return false;
     }
 
-    for 
-    (
-        auto peersIterator = PlayersList::getInstance().pBegin(this->name);
-        peersIterator != PlayersList::getInstance().pEnd();
-        ++peersIterator
-    )
-        if (peersIterator->blockTax())
-        {
-            cout << "You been blocked by " << peersIterator->name << endl;
+    for(Player& p: PlayersList::getInstance())
+        if (p.blockTax())
             return false;
-        }
     
     this->coins += 2;
 
@@ -105,13 +97,8 @@ void Player::bribe()
     {
         this->coins -= 4;
 
-        for 
-        (
-            auto peersIterator = PlayersList::getInstance().pBegin(this->name);
-            peersIterator != PlayersList::getInstance().pEnd();
-            ++peersIterator
-        )
-            if (peersIterator->blockBribe())
+        for(Player& p: PlayersList::getInstance())
+            if (p.blockBribe())
                 return;
 
         this->isBribe = true;
@@ -132,7 +119,7 @@ void Player::arrest()
     Player* selectedPlayer = this->choosePlayer();
 
     if (selectedPlayer->arrestedTurn &&
-        Game::getIstance().getTurnNum() - selectedPlayer->arrestedTurn == 1)
+        PlayersList::getInstance().getTurnNum() - selectedPlayer->arrestedTurn == 1)
     {
         cout << selectedPlayer->name << " already arrested in previous turn 😶" << endl;
         this->playTurn();
@@ -184,13 +171,8 @@ void Player::coup()
 
     Player* selected = this->choosePlayer();
 
-    for 
-    (
-        auto peersIterator = PlayersList::getInstance().pBegin(this->name);
-        peersIterator != PlayersList::getInstance().pEnd();
-        ++peersIterator
-    )
-        if (peersIterator->blockCoup())
+    for(Player& p: PlayersList::getInstance())
+        if (p.blockCoup())
             return;
 
     PlayersList::getInstance().remove(selected);
@@ -201,7 +183,7 @@ void Player::arrested()
     --*this;
     ++*PlayersList::getInstance().current();
 
-    this->arrestedTurn = Game::getIstance().getTurnNum();
+    this->arrestedTurn = PlayersList::getInstance().getTurnNum();
 }
 
 Player* Player::choosePlayer()
@@ -213,13 +195,8 @@ Player* Player::choosePlayer()
     {
         cout << "Choose player:\n";
 
-        for 
-        (
-            auto peersIterator = PlayersList::getInstance().pBegin(this->name);
-            peersIterator != PlayersList::getInstance().pEnd();
-            ++peersIterator
-        )
-            cout << peersIterator->name << endl;
+        for(Player& p: PlayersList::getInstance())
+            cout << p.name << endl;
         
         cin >> PlayerName;
 
@@ -239,7 +216,9 @@ Player* Player::choosePlayer()
 
 Player& Player::operator--()
 {
-    --this->coins;
+    if (this->coins)
+        --this->coins;
+
     return *this;
 }
 

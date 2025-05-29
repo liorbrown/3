@@ -13,6 +13,14 @@
 
 PlayersList* PlayersList::instance = nullptr;
 
+PlayersList &PlayersList::getInstance()
+{
+    if (!instance)
+        instance = new PlayersList;
+    
+    return *instance;
+}
+
 void PlayersList::free()
 {
     if (instance)
@@ -30,85 +38,9 @@ void PlayersList::clear()
     this->list.clear();
 }
 
-Player *PlayersList::createPlayer(string name)
+void PlayersList::init()
 {
-    srand(time(NULL));
-    
-    int roll = rand() % 6;
-
-    switch (roll)
-    {
-        case 0:
-            return (new Baron{name});
-        case 1:
-            return (new Governor{name});
-        case 2:
-            return (new General{name});
-        case 3:
-            return (new Spy{name});
-        case 4:
-            return (new Merchant{name});
-        case 5:
-            return (new Judge{name});
-        default:
-            return nullptr;
-    }
-}
-
-PlayersList &PlayersList::getInstance()
-{
-    if (!instance)
-        instance = new PlayersList;
-    
-    return *instance;
-}
-
-Player* PlayersList::getPlayer(const string &name) const
-{
-    for(Player* p: this->list)
-        if (p->getName() == name)
-            return p;
-    
-    return nullptr;
-}
-
-string* PlayersList::players() const
-{
-    string* pList = new string[this->list.size()];
-    size_t i = 0;
-
-    for (const Player* p : this->list)
-        pList[i++] = p->getName();
-        
-    return pList;
-}
-
-void PlayersList::remove(Player* player)
-{
-    size_t nPlayers = this->list.size();
-
-    for(auto p = this->list.begin(); p != this->list.end();++p)
-        if (*p == player)
-            this->list.erase(p);
-
-    // for (size_t i = 0; i < nPlayers; i++)
-    //     if (this->list.at(i) == player)
-    //     {
-    //         this->list.erase(this->list.begin()+i);
-    //         delete player;
-    //         break;
-    //     }
-    
-    for
-    (
-        this->iterator = this->list.begin();
-        *this->iterator != PlayersList::getInstance().current();
-        ++this->iterator
-    );
-}
-
-PlayersList::cycleIterator* PlayersList::begin()
-{
+    this->turnNum = 0;
     this->clear();
 
     string playerNum;
@@ -149,55 +81,97 @@ PlayersList::cycleIterator* PlayersList::begin()
         cout << playerName << " is " << (typeid(*newPlayer).name() + 1) << endl;
     }
 
-    this->iterator = this->list.begin();
-
-    return (&this->iterator);
+    this->turnsIterator = this->list.begin();
 }
 
-PlayersList::peersIterator PlayersList::pBegin(string currentPlayer)
+Player *PlayersList::createPlayer(string name)
 {
-    PlayersList::peersIterator iterator{this->list.begin(), currentPlayer};
-
-    if (iterator->getName() == currentPlayer)
-        ++iterator;
+    srand(time(NULL));
     
-    return iterator;
+    int roll = rand() % 6;
+
+    switch (roll)
+    {
+        case 0:
+            return (new Baron{name});
+        case 1:
+            return (new Governor{name});
+        case 2:
+            return (new General{name});
+        case 3:
+            return (new Spy{name});
+        case 4:
+            return (new Merchant{name});
+        case 5:
+            return (new Judge{name});
+        default:
+            return nullptr;
+    }
 }
 
-PlayersList::cycleIterator* PlayersList::cycleIterator::operator++()
+Player* PlayersList::getNext()
 {
-    vector<Player*>& myList = PlayersList::getInstance().list;
-    
-    assert(myList.size());
-    
-    if (myList.size() == 1)
-        this->current = {};
-    else if ((*this)->getIsBribe())
-        (*this)->Unbribe();
+    if (this->list.empty())
+        this->init();
+    else if (this->list.size() == 1)
+        return nullptr;
+    else if (this->current()->getIsBribe())
+        this->current()->Unbribe();
     else
     {
-        ++this->current;
+        ++this->turnsIterator;
 
-        if (this->current == myList.end())
-            this->current = myList.begin();
+        if (this->turnsIterator == this->list.end())
+            this->turnsIterator = this->list.begin();
     }
 
-    return (this);
+    ++this->turnNum;
+
+    return *this->turnsIterator;
 }
 
-// i++;
-// Usually iterators are passed by value and not by const& as they are small.
-const PlayersList::cycleIterator PlayersList::cycleIterator::operator++(int) {
-    cycleIterator tmp = *this;
-    ++*this;
-    return tmp;
+Player* PlayersList::getPlayer(const string &name) const
+{
+    for(Player* p: this->list)
+        if (p->getName() == name)
+            return p;
+    
+    return nullptr;
 }
 
-PlayersList::peersIterator& PlayersList::peersIterator::operator++() {
+string* PlayersList::players() const
+{
+    string* pList = new string[this->list.size()];
+    size_t i = 0;
+
+    for (const Player* p : this->list)
+        pList[i++] = p->getName();
+        
+    return pList;
+}
+
+void PlayersList::remove(Player* player)
+{
+    size_t nPlayers = this->list.size();
+
+    for(auto p = this->list.begin(); p != this->list.end();++p)
+        if (*p == player)
+            this->list.erase(p);
+    
+    for
+    (
+        this->turnsIterator = this->list.begin();
+        *this->turnsIterator != PlayersList::getInstance().current();
+        ++this->turnsIterator
+    );
+}
+
+PlayersList::iterator& PlayersList::iterator::operator++() 
+{
     auto next = ++current;
 
     if (next != PlayersList::getInstance().list.end() && 
-        (*next)->getName() == this->currentPlayer)
+        *next == PlayersList::getInstance().current())
         ++current;
 
     return *this;
@@ -205,8 +179,17 @@ PlayersList::peersIterator& PlayersList::peersIterator::operator++() {
 
 // i++;
 // Usually iterators are passed by value and not by const& as they are small.
-const PlayersList::peersIterator PlayersList::peersIterator::operator++(int) {
-    peersIterator tmp = *this;
+const PlayersList::iterator PlayersList::iterator::operator++(int) 
+{
+    iterator tmp = *this;
     ++*this;
     return tmp;
+}
+
+PlayersList::iterator::iterator(vector<Player *>::iterator current):
+    current(current)
+{
+    if (this->current == PlayersList::getInstance().list.begin() &&
+        *this->current == PlayersList::getInstance().current())
+            ++this->current;
 }

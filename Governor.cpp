@@ -17,7 +17,7 @@ bool Governor::blockTax()
     string yesNo;
 
     cout << this->getName() << ": Are you want to block ";
-    Game::getIstance().turn();
+    Game::getInstance().turn();
     cout << " from doing tax? (y/n)";
 
     cin >> yesNo;

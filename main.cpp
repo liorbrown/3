@@ -32,14 +32,12 @@ int main()
     //testSMFL();
     cout << "🚀🚀🚀🚀🚀🚀 Welcome to coup! 🚀🚀🚀🚀🚀🚀" << endl;
 
-    Game::getIstance().start();
+    Game::getInstance().start();
 
-    string winner = Game::getIstance().winner();
+    string winner = Game::getInstance().winner();
 
     if (!winner.empty())
         cout << "The winner is 🥁🥁🥁🥁🥁🥁: " << winner << endl;
-    
-    cout << "Bye Bye 🤗" << endl;
 
     Game::free();
     PlayersList::free();

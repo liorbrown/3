@@ -13,9 +13,11 @@ class PlayersList
     private:
         static PlayersList* instance;
 
-        vector<Player*> list;        
-        PlayersList():iterator({}){}
+        size_t turnNum;
+        vector<Player*> list;
+        vector<Player*>::iterator turnsIterator;
 
+        PlayersList(){}
         PlayersList(const PlayersList&) = delete;
         PlayersList& operator=(const PlayersList&) = delete;
         ~PlayersList(){this->clear();}
@@ -27,71 +29,37 @@ class PlayersList
         static PlayersList& getInstance();
         static void free();
 
-        
+        void init();
+        size_t getTurnNum() const {return this->turnNum;}
+        Player* getNext();
+        Player* current(){return *this->turnsIterator;}
         Player* getPlayer(const string& name) const;
         string* players() const;
-        void turn() const {}
         void remove(Player* player);
-        Player& getWinner(){return *this->list.at(0);}
 
-        class cycleIterator
+        class iterator
         {
             private:
 		        vector<Player*>::iterator current;
-
-	        public:
-
-                cycleIterator(vector<Player*>::iterator ptr):current(ptr) {}
-
-                
-
-                Player* operator*() const {return *current;}
-                Player* operator->() const {return *current;}
-
-                // ++i;
-                cycleIterator* operator++();
-
-                // i++;
-                // Usually iterators are passed by value and not by const& as they are small.
-                const cycleIterator operator++(int);
-
-                bool operator==(const cycleIterator& rhs) const {return current == rhs.current;}
-
-                bool operator!=(const cycleIterator& rhs) const {return !(*this == rhs);}
-        };
-
-        class peersIterator
-        {
-            private:
-                string currentPlayer;
-		        vector<Player*>::iterator current;
-
-	        public:
-
-                peersIterator(vector<Player*>::iterator ptr, const string currentPlayer):
-                    current(ptr), currentPlayer(currentPlayer) {}
+	        
+            public:
+                iterator(vector<Player*>::iterator current);
 
                 Player& operator*() const {return **current;}
                 Player* operator->() const {return *current;}
 
                 // ++i;
-                peersIterator& operator++();
+                iterator& operator++();
 
                 // i++;
                 // Usually iterators are passed by value and not by const& as they are small.
-                const peersIterator operator++(int);
+                const iterator operator++(int);
 
-                bool operator==(const peersIterator& rhs) const {return current == rhs.current;}
+                bool operator==(const iterator& rhs) const {return current == rhs.current;}
 
-                bool operator!=(const peersIterator& rhs) const {return !(*this == rhs);}
-        };
+                bool operator!=(const iterator& rhs) const {return !(*this == rhs);}
+        };       
 
-    cycleIterator iterator;
-    Player* current(){return *this->iterator;}
-    
-    cycleIterator* begin();
-    cycleIterator end() {return{{}};}
-
-    peersIterator pBegin(string currentPlayer);
-    peersIterator pEnd() {return {this->list.end(),{}};}        
+        iterator begin(){return this->list.begin();}
+        iterator end() {return this->list.end();}
 };

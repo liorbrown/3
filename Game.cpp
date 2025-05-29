@@ -5,7 +5,7 @@
 
 Game* Game::instance = nullptr;
 
-Game &Game::getIstance()
+Game &Game::getInstance()
 {
     if (!instance)
         instance = new Game;
@@ -24,20 +24,15 @@ void Game::free()
 
 void Game::start()
 {   
-    for 
-    (
-        auto turnsIterator = PlayersList::getInstance().begin();
-        *turnsIterator != PlayersList::getInstance().end();
-        ++*turnsIterator
-    ) 
-    {
-        ++this->turnNum;
-        this->turnName = (*turnsIterator)->getName();
-        
-        (*turnsIterator)->playTurn();
-    }
-    
-    this->winnerName = PlayersList::getInstance().getWinner().getName();
+    Player* current;
 
-    cout << "And the winner is 🥁🥁🥁🥁🥁🥁🥁🥁:\n" << this->winner() << endl;
+    while (current = PlayersList::getInstance().getNext())
+        current->playTurn();
+    
+    this->winnerName = PlayersList::getInstance().current()->getName();
+}
+
+void Game::turn() const
+{
+    cout << PlayersList::getInstance().current()->getName();
 }
