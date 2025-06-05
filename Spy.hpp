@@ -3,6 +3,7 @@
 
 #include "Player.hpp"
 
+/// @brief This class represented player with the roll of Spy
 class Spy : public Player
 {
     public:

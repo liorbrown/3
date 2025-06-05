@@ -8,6 +8,7 @@ Player.o
 Merchant.o
 PlayersList.o
 Spy.o
+Button.o
 .vscode/launch.json
 .vscode/settings.json
 .vscode/tasks.json
