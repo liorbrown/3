@@ -6,9 +6,8 @@
 class General : public Player
 {
     private:
-        bool blockCoup();
-        void arrested(){++*PlayersList::getInstance().current();}
+        bool arrested();
 
     public:
-        General(string name): Player(name){}
+        General(string name): Player(name){this->ability = BLOCK_COUP;}
 };

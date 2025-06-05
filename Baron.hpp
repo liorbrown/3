@@ -6,9 +6,8 @@
 class Baron : public Player
 {
     private:
-        void specialAction();
         void sanctioned();
         
     public:
-        Baron(string name): Player(name){}
+        Baron(string name): Player(name){this->ability = Player::EXCHANGE;}
 };

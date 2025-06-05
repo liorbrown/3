@@ -1,6 +1,7 @@
 CXX=g++
 CXXFLAGS=-std=c++2a -g -c
 SFMLFLAGS=-lsfml-system -lsfml-window -lsfml-graphics
+BUTTONLIB= -L. -lSFMLButton 
 
 .PHONY: clean Main valgrind build
 
@@ -9,12 +10,14 @@ Main: buildMain
 
 valgrind: buildMain
 	valgrind --leak-check=yes ./main.out
-	valgrind --leak-check=yes ./test.out
 
-buildMain: main.o Baron.o Game.o General.o Governor.o Judge.o Player.o PlayersList.o Spy.o
-	$(CXX) $^ -o main.out $(SFMLFLAGS)
+buildMain: main.o Baron.o Game.o General.o Judge.o Player.o PlayersList.o Merchant.o Button.o
+	$(CXX) $^ -o main.out $(SFMLFLAGS) $(BUTTONLIB)
 
-main.o: main.cpp Game.hpp Player.hpp
+Button.o: Button.cpp Button.hpp
+	$(CXX) $(CXXFLAGS) $< -o $@ $(SFMLFLAGS)
+
+main.o: main.cpp Game.hpp Player.hpp Button.hpp
 	$(CXX) $(CXXFLAGS) $< -o $@ $(SFMLFLAGS)
 
 Game.o: Game.cpp Game.hpp Player.hpp
@@ -32,13 +35,10 @@ Baron.o: Baron.cpp Baron.hpp Player.hpp Game.hpp PlayersList.hpp
 General.o: General.cpp General.hpp Player.hpp Game.hpp PlayersList.hpp
 	$(CXX) $(CXXFLAGS) $< -o $@ $(SFMLFLAGS)
 
-Governor.o: Governor.cpp Governor.hpp Player.hpp Game.hpp PlayersList.hpp
-	$(CXX) $(CXXFLAGS) $< -o $@ $(SFMLFLAGS)
-
 Judge.o: Judge.cpp Judge.hpp Player.hpp Game.hpp PlayersList.hpp
 	$(CXX) $(CXXFLAGS) $< -o $@ $(SFMLFLAGS)
 
-Spy.o: Spy.cpp Spy.hpp Player.hpp Game.hpp
+Merchant.o: Merchant.cpp Merchant.hpp Player.hpp Game.hpp
 	$(CXX) $(CXXFLAGS) $< -o $@ $(SFMLFLAGS)
 
 clean:

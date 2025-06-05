@@ -6,9 +6,8 @@
 class Judge : public Player
 {
     private:
-        bool blockBribe();
         void sanctioned();
 
     public:
-        Judge(string name): Player(name){}
+        Judge(string name): Player(name){this->ability = BLOCK_BRIBE;}
 };

@@ -6,9 +6,8 @@
 class Governor : public Player
 {
     private:
-        bool tax();
-        bool blockTax();
+        void tax(){this->getCoins() += 3;}
 
     public:
-        Governor(string name): Player(name){} 
+        Governor(string name): Player(name){this->ability = BLOCK_TAX;}
 };

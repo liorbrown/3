@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <sstream>
 #include "PlayersList.hpp"
 #include "Baron.hpp"
 #include "Spy.hpp"
@@ -38,52 +39,6 @@ void PlayersList::clear()
     this->list.clear();
 }
 
-void PlayersList::init()
-{
-    this->turnNum = 0;
-    this->clear();
-
-    string playerNum;
-    size_t nPlayers = 0;
-
-    while (!nPlayers)
-    {
-        cout << "Please enter number of players (2-6): ";
-        cin >> nPlayers;
-
-        if (nPlayers < 2 || nPlayers > 6)
-        {
-            cout << "Wrong input 🙄" << endl;
-            nPlayers = 0;
-        }
-    }
-
-    for (size_t i = 1; i <= nPlayers; i++)
-    {
-        string playerName;
-
-        while (playerName.empty())
-        {
-            cout << "Enter player " << i << " name: ";
-            cin >> playerName;
-
-            if (this->getPlayer(playerName))
-            {
-                cout << "Name is already taken🫤" << endl;
-                playerName.clear();
-            }
-        }
-
-        Player* newPlayer = createPlayer(playerName);
-
-        this->list.emplace_back(newPlayer);
-
-        cout << playerName << " is " << (typeid(*newPlayer).name() + 1) << endl;
-    }
-
-    this->turnsIterator = this->list.begin();
-}
-
 Player *PlayersList::createPlayer(string name)
 {
     srand(time(NULL));
@@ -109,10 +64,46 @@ Player *PlayersList::createPlayer(string name)
     }
 }
 
-Player* PlayersList::getNext()
+string PlayersList::getListString()
 {
-    if (this->list.empty())
-        this->init();
+    stringstream result;
+
+    for (const Player* p : this->list)
+        result << p->getName() << " the " << (typeid(*p).name() + 1) << '\n';
+
+    return result.str();
+}
+
+bool PlayersList::newPlayer(string name)
+{
+    if (this->getPlayer(name))
+        return false;
+    
+    srand(time(NULL));
+    
+    int roll = rand() % 6;
+
+    switch (roll)
+    {
+        case 0:
+            return (this->list.emplace_back(new Baron{name}));
+        case 1:
+            return (this->list.emplace_back(new Governor{name}));
+        case 2:
+            return (this->list.emplace_back(new General{name}));
+        case 3:
+            return (this->list.emplace_back(new Spy{name}));
+        case 4:
+            return (this->list.emplace_back(new Merchant{name}));
+        case 5:
+            return (this->list.emplace_back(new Judge{name}));
+    }
+}
+
+Player* PlayersList::getNext()
+{   
+    if (!this->turnsIterator.base()) 
+        this->turnsIterator = this->list.begin();
     else if (this->list.size() == 1)
         return nullptr;
     else if (this->current()->getIsBribe())
@@ -124,8 +115,6 @@ Player* PlayersList::getNext()
         if (this->turnsIterator == this->list.end())
             this->turnsIterator = this->list.begin();
     }
-
-    ++this->turnNum;
 
     return *this->turnsIterator;
 }
@@ -152,8 +141,6 @@ string* PlayersList::players() const
 
 void PlayersList::remove(Player* player)
 {
-    size_t nPlayers = this->list.size();
-
     for(auto p = this->list.begin(); p != this->list.end();++p)
         if (*p == player)
         {
@@ -171,6 +158,14 @@ void PlayersList::remove(Player* player)
         *this->turnsIterator != current;
         ++this->turnsIterator
     );
+}
+
+PlayersList::iterator::iterator(vector<Player *>::iterator current):
+    current(current)
+{
+    if (this->current == PlayersList::getInstance().list.begin() &&
+        *this->current == PlayersList::getInstance().current())
+            ++this->current;
 }
 
 PlayersList::iterator& PlayersList::iterator::operator++() 
@@ -191,12 +186,4 @@ const PlayersList::iterator PlayersList::iterator::operator++(int)
     iterator tmp = *this;
     ++*this;
     return tmp;
-}
-
-PlayersList::iterator::iterator(vector<Player *>::iterator current):
-    current(current)
-{
-    if (this->current == PlayersList::getInstance().list.begin() &&
-        *this->current == PlayersList::getInstance().current())
-            ++this->current;
 }

@@ -1,4 +1,5 @@
 // liorbrown@outlook.co.il
+
 #pragma once
 
 #include <cstddef>
@@ -11,47 +12,59 @@ using namespace std;
 class Player
 {
     private:
-        string name;
-        
+        string name; 
+        size_t coins;
         bool isSanctioned;
         bool isBribe;
         size_t arrestedTurn;
-
-        void gather();  
-        void bribe();
-        void arrest();
-        void sanction();
-        void coup();
-            
-        virtual bool blockTax(){return false;}
-        virtual bool blockCoup(){return false;}
-        virtual bool blockBribe(){return false;}
-        virtual void specialAction(){}
-        virtual void arrested();
-
+        bool isBlockArrest;
+        
     protected:
-        size_t coins;
-        bool blockArrest;
-
+        
         Player(string name):
             name(name), 
             coins(0),
-            blockArrest(false),
+            isBlockArrest(false),
             isSanctioned(false), 
             isBribe(false), 
-            arrestedTurn(0){}
+            arrestedTurn(0),
+            ability(NONE){}
 
-        virtual bool tax();
         virtual void sanctioned(){this->isSanctioned = true;}
-        Player* choosePlayer();
 
     public:
+
+        enum specialAbility
+        {
+            NONE,
+            BLOCK_TAX,
+            BLOCK_BRIBE,
+            BLOCK_COUP,
+            EXCHANGE,
+            SPYING
+        };
+
+        virtual void increaseCoins(){}
+        void gather(){++*this;}
+        virtual void tax(){this->coins += 2;}
+        void bribe();
+        void sanction(Player* selected);
+        void coup(Player* selected);
+        virtual bool arrested();
+        
         string getName() const {return this->name;}
-        const bool getIsBribe() const {return this->isBribe;}
+        size_t getCoins() const {return this->coins;}
+        size_t& getCoins() {return this->coins;}
+        specialAbility getAbility() const {return this->ability;}
+        bool& getIsSanctioned() {return this->isSanctioned;}
+        bool getIsBribe() const {return this->isBribe;}
+        bool& getIsBlockArrest(){return this->isBlockArrest;}
+        size_t getArrestedTurn() const {return this->arrestedTurn;}
         void Unbribe() {this->isBribe = false;}
-        void arrestBlocking() {this->blockArrest = true;}
-        virtual void playTurn();
 
         Player& operator--();
         Player& operator++();
+
+    protected:
+        specialAbility ability;
 };

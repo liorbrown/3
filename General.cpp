@@ -2,20 +2,12 @@
 
 #include "General.hpp"
 
-bool General::blockCoup()
+bool General::arrested()
 {
-    if (this->coins >= 5)
-    {
-        string yesNo;
-        cout << this->getName() << ": Do you want to block the coup? (y/n): ";
-        cin >> yesNo;
+    bool isArrested = Player::arrested();
+    
+    if (isArrested)
+        ++*this;
 
-        if (yesNo == "y")
-        {
-            this->coins -= 5;
-            return true;
-        }
-    }
-
-    return false;
+    return isArrested;
 }

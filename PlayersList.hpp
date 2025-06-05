@@ -13,7 +13,6 @@ class PlayersList
     private:
         static PlayersList* instance;
 
-        size_t turnNum;
         vector<Player*> list;
         vector<Player*>::iterator turnsIterator;
 
@@ -23,19 +22,20 @@ class PlayersList
         ~PlayersList(){this->clear();}
         
         Player* createPlayer(string name);
-        void clear();
+        
 
     public:
         static PlayersList& getInstance();
         static void free();
 
-        void init();
-        size_t getTurnNum() const {return this->turnNum;}
+        string getListString();
+        bool newPlayer(string name);
         Player* getNext();
         Player* current(){return *this->turnsIterator;}
         Player* getPlayer(const string& name) const;
         string* players() const;
         void remove(Player* player);
+        void clear();
 
         class iterator
         {
@@ -45,7 +45,7 @@ class PlayersList
             public:
                 iterator(vector<Player*>::iterator current);
 
-                Player& operator*() const {return **current;}
+                Player* operator*() const {return *current;}
                 Player* operator->() const {return *current;}
 
                 // ++i;

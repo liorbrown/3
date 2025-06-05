@@ -5,10 +5,6 @@
 
 class Spy : public Player
 {
-    private:
-        void specialAction();
-
     public:
-        Spy(string name): Player(name){}
-        
+        Spy(string name): Player(name){this->ability = Player::SPYING;}       
 };
