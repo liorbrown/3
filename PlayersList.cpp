@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include "PlayersList.hpp"
 #include "Baron.hpp"
 #include "Spy.hpp"
@@ -40,10 +41,17 @@ void PlayersList::clear()
     
     // Clear inner list
     this->list.clear();
+
+    // Resets iterator
+    this->turnsIterator = {};
 }
 
 string PlayersList::getListString()
 {
+    // If list empty, return empty string
+    if (this->list.empty())
+        return {};
+
     stringstream result;
 
     // Runs on all players and add row with player name and roll
@@ -58,6 +66,9 @@ string PlayersList::getListString()
 
 bool PlayersList::newPlayer(string name)
 {
+    if (this->list.size() == 6)
+        throw out_of_range{"Players list reach its limit - 6"};
+
     // Not alowing 2 players with same name because this is the way the players distinct between
     // other players when they want to make action on them etc.
     if (this->getPlayer(name))
@@ -91,7 +102,10 @@ bool PlayersList::newPlayer(string name)
 }
 
 Player* PlayersList::getNext()
-{   
+{
+    if (this->list.empty())
+        throw out_of_range("Canwt gat next on empty list");
+    
     ++this->turn;
 
     // This is a way to check if iterator is in init mode
@@ -133,6 +147,15 @@ Player* PlayersList::getPlayer(const string &name) const
 
 void PlayersList::remove(Player* player)
 {
+    if (!player)
+        throw invalid_argument("Player can't be null");
+    
+    if (player == this->current())
+        throw invalid_argument("Can't remove current turn player");
+
+    Player* current = PlayersList::getInstance().current();
+    bool isFound = false;
+
     // Runs on all players in list
     // This time run with regular for and not foreach
     // because need to iterator itself for the erase method
@@ -142,11 +165,17 @@ void PlayersList::remove(Player* player)
         {
             // Remove player from list
             this->list.erase(p);
+            isFound = true;
+
             break;
         }
     
     // Free object memory
     delete player;
+
+    // function shuld accept only existence players
+    if (!isFound)
+        throw invalid_argument("Player not exist in list");
 
     // This is very problematic issue with standard iterators.
     // after list.erase(p) the iterator is unpredictible 
@@ -154,8 +183,6 @@ void PlayersList::remove(Player* player)
     // So the solution is to keep pointer to current player
     // and then runs iterator from list.begin() to current player
     // and this is refresh iterator to current container state
-    Player* current = PlayersList::getInstance().current();
-    
     for
     (
         this->turnsIterator = this->list.begin();
@@ -164,14 +191,22 @@ void PlayersList::remove(Player* player)
     );
 }
 
-string* PlayersList::players() const
+Player* PlayersList::current()
 {
-    string* pList = new string[this->list.size()];
-    size_t i = 0;
+    // Check if iterator not point to any player
+    if (!this->turnsIterator.base())
+        throw out_of_range("There is not active turn");
+
+    return *this->turnsIterator;
+}
+
+vector<string> PlayersList::players() const
+{
+    vector<string> pList;
 
     // Runs on all players and add theit name to strings list
     for (const Player* p : this->list)
-        pList[i++] = p->getName();
+        pList.emplace_back(p->getName());
         
     return pList;
 }
@@ -181,8 +216,9 @@ PlayersList::iterator::iterator(vector<Player *>::iterator current):
 {
     // If iterator points to begin of list, and the first player is the current turn player
     // so go to next player
-    if (this->current == PlayersList::getInstance().list.begin() &&
-        *this->current == PlayersList::getInstance().current())
+    // This throws out of bound exception if PlayersList::getInstance().current() is not set
+    if (*this->current == PlayersList::getInstance().current() && 
+        this->current == PlayersList::getInstance().list.begin())
             ++this->current;
 }
 

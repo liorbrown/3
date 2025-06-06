@@ -1,5 +1,10 @@
 // liorbrown@outlook.co.il
+
 #pragma once
+
+// This flag is use for define code that is relevante only for testing the code
+// Will be erase before upload to prod 
+#define TEST_MODE
 
 #include <vector>
 #include <string>
@@ -57,8 +62,8 @@ class PlayersList
         bool newPlayer(string name);
         
         /// @brief Gets player of current turn
-        /// @return Pointer to this turn player
-        Player* current(){return *this->turnsIterator;}
+        /// @return Pointer to this turn player. null if empty
+        Player* current();
         
         /// @brief Remove given player from list
         /// @param player Pointer to the player to remove
@@ -71,7 +76,7 @@ class PlayersList
         /// This method was only written because we were explicitly asked to implement it in the instructions. 
         /// In practice, I did not find any logical use for it in the game, so it was not used anywhere.
         /// @return Array of strings of players name
-        string* players() const;
+        vector<string> players() const;
 
         /// @brief This is the container iterator
         /// Its run on all players exclude current player turn
@@ -110,4 +115,11 @@ class PlayersList
 
         iterator begin(){return this->list.begin();}
         iterator end() {return this->list.end();}
+
+        #ifdef TEST_MODE
+        /// @brief Because the insertion is randomise, we create this method for testing
+        /// our desire players list
+        /// @param newPlayer New player that created outside method
+        friend void emplaceBack(PlayersList& list, Player* newPlayer);
+        #endif
 };

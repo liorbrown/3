@@ -61,10 +61,10 @@ class Player
         virtual void increaseCoins(){}
 
         /// @brief Increase player coins by 1
-        void gather(){++*this;}
+        void gather();
 
         /// @brief Increase player coins by 2
-        virtual void tax(){this->coins += 2;}
+        virtual void tax();
 
         /// @brief Gives player play 2 turns arow
         /// can't be played 2 turns arow

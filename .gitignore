@@ -13,3 +13,5 @@ Button.o
 .vscode/settings.json
 .vscode/tasks.json
 main.out
+CoupTest.o
+test.out

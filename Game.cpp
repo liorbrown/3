@@ -17,7 +17,7 @@ Game &Game::getInstance()
 
 void Game::free()
 {
-    // If instance created, delet it
+    // If instance created, delete it
     if (instance)
     {
         delete instance;

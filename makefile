@@ -2,16 +2,26 @@ CXX=g++
 CXXFLAGS=-std=c++2a -g -c
 SFMLFLAGS=-lsfml-system -lsfml-window -lsfml-graphics
 
-.PHONY: clean Main valgrind build
+.PHONY: clean Main test valgrind buildMain
 
 Main: buildMain
 	./main.out
 
-valgrind: buildMain
+test: buildTest
+	./test.out
+
+valgrind: buildMain buildTest
 	valgrind --leak-check=yes ./main.out
+	valgrind --leak-check=yes ./test.out
 
 buildMain: main.o Baron.o Game.o General.o Judge.o Player.o PlayersList.o Merchant.o Button.o
 	$(CXX) $^ -o main.out $(SFMLFLAGS)
+
+buildTest: CoupTest.o Baron.o Game.o General.o Judge.o Player.o PlayersList.o Merchant.o Button.o
+	$(CXX) $^ -o test.out $(SFMLFLAGS)
+
+CoupTest.o: CoupTest.cpp PlayersList.hpp Baron.hpp General.hpp Governor.hpp Judge.hpp Merchant.hpp Player.hpp Spy.hpp
+	$(CXX) $(CXXFLAGS) $< -o $@
 
 Button.o: Button.cpp Button.hpp
 	$(CXX) $(CXXFLAGS) $< -o $@ $(SFMLFLAGS)

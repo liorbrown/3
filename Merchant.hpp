@@ -10,8 +10,9 @@ class Merchant : public Player
     private:
         /// @brief When Merchant have 3 coins on start of turn,
         /// his getting extra coin
-        void increaseCoins() {if (this->getCoins() >= 3) ++*this;}
-        bool arrested();
+        virtual void increaseCoins() {if (this->getCoins() >= 3) ++*this;}
+        
+        virtual bool arrested();
 
     public:
         Merchant(string name): Player(name){}
