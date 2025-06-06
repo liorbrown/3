@@ -2,7 +2,9 @@
 
 #include <sstream>
 #include <vector>
+#include <stdexcept>
 #include "Game.hpp"
+
 
 // Init static singlton pointer to null
 Game* Game::instance = nullptr;
@@ -63,6 +65,9 @@ void Game::openStartWindow()
 
 void Game::openPlayersInitWindow()
 {
+    // Reset winner name
+    this->winnerName = {};
+
     string playerInput;
 
     // Create title
@@ -747,4 +752,12 @@ void Game::turn() const
 {
     // Print to console current turn player name
     cout << PlayersList::getInstance().current()->getName();
+}
+
+string Game::winner() const 
+{
+    if (this->winnerName.empty())
+        throw logic_error{"Game still running"};
+        
+    return this->winnerName;
 }

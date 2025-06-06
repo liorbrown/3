@@ -115,7 +115,7 @@ class Game
         /// This method was only written because we were explicitly asked to implement it in the instructions. 
         /// In practice, I did not find any logical use for it in the game, so it was not used anywhere.
         /// @return Winner name. if game not ended return empty string
-        string winner() const {return this->winnerName;}
+        string winner() const;
 
         /// @brief Starts new game
         void start(){this->openStartWindow();}
